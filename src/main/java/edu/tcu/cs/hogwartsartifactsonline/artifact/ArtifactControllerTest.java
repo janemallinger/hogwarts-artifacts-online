@@ -1,9 +1,11 @@
 package artifact;
 
+import org.junit.Test;
 import system.StatusCode;
 
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.regex.Matcher;
 
 import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.AfterEach;
@@ -95,6 +97,24 @@ class ArtifactControllerTest {
                 .andExpect(jsonPath("$.code").value(StatusCode.NOT_FOUND))
                 .andExpect(jsonPath("$.message").value("could not find artifact"))
                 .andExpect(jsonPath("$.data").isEmpty());
+    }
+
+    @Test
+    void testFineAllArtifactsSuccess() {
+        //Given
+        given(this.artifactService.findAll()).willReturn(this.artifacts);
+
+
+        //When and Then
+        this.mockMvc.perform(get("/api/v1/artifacts").accept(PageAttributes.MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.flag").value(true))
+                .andExpect(jsonPath("$.code").value(StatusCode.SUCCESS))
+                .andExpect(jsonPath("$.message").value("Find all success"))
+                .andExpect(jsonPath("$.data", Matchers.hasSize(this.artifacts.size())))
+                .andExpect(jsonPath("$.data[0].id").value("1250808601744904191"))
+                .andExpect(jsonPath("$.data[0].name").value("Deluminator"))
+                .andExpect(jsonPath("$.data[1].id").value("1250808601744904192"))
+                .andExpect(jsonPath("$.data[1].name").value("Cloak"));
     }
 
 }

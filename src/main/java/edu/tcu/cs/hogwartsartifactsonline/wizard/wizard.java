@@ -49,4 +49,8 @@ public class wizard implements Serializable {
         artifact.setOwner(this);
         this.artifacts.add(artifact);
     }
+
+    public Interger getNumberOfArtifacts() {
+        return this.artifacts.size();
+    }
 }
