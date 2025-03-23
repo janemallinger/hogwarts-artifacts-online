@@ -1,5 +1,6 @@
 package artifact;
 
+import artifact.converter.ArtifactDtoToArtifactConverter;
 import artifact.converter.ArtifactToArtifactDtoConverter;
 import artifact.dto.ArtifactDto;
 import org.springframework.web.bind.annotation.RestController;
@@ -16,9 +17,13 @@ public class ArtifactController {
 
     private final ArtifactToArtifactDtoConverter artifactToArtifactDtoConverter;
 
-    public ArtifactController(artifact.ArtifactService artifactService, ArtifactToArtifactDtoConverter artifactToArtifactDtoConverter) {
+
+    private final ArtifactDtoToArtifactConverter artifactDtoToArtifactConverter;
+
+    public ArtifactController(artifact.ArtifactService artifactService, ArtifactToArtifactDtoConverter artifactToArtifactDtoConverter, ArtifactDtoToArtifactConverter artifactDtoToArtifactConverter) {
         this.artifactService = artifactService;
         this.artifactToArtifactDtoConverter = artifactToArtifactDtoConverter;
+        this.artifactDtoToArtifactConverter = artifactDtoToArtifactConverter;
     }
 
     @GetMapping("/api/v1/artifacts/{artifactId}")
@@ -38,7 +43,11 @@ public class ArtifactController {
     }
 
     @PostMapping("/api/v1/artifacts")
-    public Result addArtifact(@RequestBody ArtifactDto artifactDto) {
-        return null;
+    public Result addArtifact(@Valid @RequestBody ArtifactDto artifactDto) {
+        artifact newArtifact = this.artifactDtoToArtifactConverter.convert(artifactDto);
+        artifact savedArtifact = this.artifactService.save(newArtifact);
+        ArtifactDto savedArtifactDto = this.artifactToArtifactDtoConverter.convert(savedArtifact);
+
+        return new Result(true, StatusCode.SUCCESS, "Add success", savedArtifactDto);
     }
 }

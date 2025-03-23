@@ -1,5 +1,6 @@
 package artifact;
 
+import artifact.dto.ArtifactDto;
 import org.junit.Test;
 import system.StatusCode;
 
@@ -20,6 +21,9 @@ class ArtifactControllerTest {
     @MockitoBean
     ArtifactService artifactService;
     List<artifact> artifacts;
+
+    @Autowired
+    ObjectMapper objectMapper;
 
     @BeforeEach
     void setUp() {
@@ -115,6 +119,40 @@ class ArtifactControllerTest {
                 .andExpect(jsonPath("$.data[0].name").value("Deluminator"))
                 .andExpect(jsonPath("$.data[1].id").value("1250808601744904192"))
                 .andExpect(jsonPath("$.data[1].name").value("Cloak"));
+    }
+
+    @Test
+    void testAddArtifactSuccess() {
+        //Given
+        ArtifactDto artifactDto = new ArtifactDto(null,
+                "Remembrall",
+                "glows when forgotten",
+                "ImageUrl",
+                null);
+        String json = this.objectMapper.writeValueAsString(artifactDto);
+
+        artifact savedArtifact = new artifact();
+        savedArtifact.setId("1250808601744904191");
+        savedArtifact.setName("Remembrall");
+        savedArtifact.setDescription("glows when forgotten");
+        savedArtifact.setImageUrl("ImageUrl");
+
+        given(this.artifactService.save(Mockito.any(artifact.class))).willReturn(savedArtifact);
+
+
+
+        //When and Then
+        this.mockMvc.perform(post("/api/v1/artifacts").contentType(PageAttributes.MediaType.APPLICATION_JSON).content(json).accept(PageAttributes.MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.flag").value(true))
+                .andExpect(jsonPath("$.code").value(StatusCode.SUCCESS))
+                .andExpect(jsonPath("$.message").value("Add success"))
+                .andExpect(jsonPath("$.data.id").isNotEmpty())
+                .andExpect(jsonPath("$.data.name").value(savedArtifact.getName()))
+                .andExpect(jsonPath("$.data.description").value(savedArtifact.getDescription()))
+                .andExpect(jsonPath("$.data.imageUrl").value(savedArtifact.getImageUrl()));
+
+
+
     }
 
 }

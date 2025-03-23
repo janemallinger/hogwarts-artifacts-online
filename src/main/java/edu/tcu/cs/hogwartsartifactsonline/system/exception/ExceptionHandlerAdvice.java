@@ -14,4 +14,20 @@ public class ExceptionHandlerAdvice {
         return new Result(false, StatusCode.NOT_FOUND, ex.getMessage());
     }
 
+    @param ex
+
+    @return
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    Result handleValidationException(MethodArgumentNotValidException ex) {
+        List<ObjectError> errors = ex.getBindingResult().getAllErrors();
+        errors.forEach((error) -> {
+            String key = ((FieldError) error).getField();
+            String val = error.getDefaultMessage();
+            map.put(key, val);
+        });
+        return new Result(false, StatusCode.INVALID_ARGUMENT, "no", map);
+    }
+
 }
