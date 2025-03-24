@@ -3,7 +3,6 @@ package system;
 import artifact.artifact;
 import org.springframework.boot.CommandLineRunner;
 import wizard.wizard;
-import wizard.WizardRepository;
 import org.springframework.stereotype.Component;
 
 @Component

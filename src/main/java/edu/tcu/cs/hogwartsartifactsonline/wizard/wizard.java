@@ -11,6 +11,7 @@ import java.util.List;
 public class wizard implements Serializable {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer id;
 
     private String name;
@@ -25,7 +26,7 @@ public class wizard implements Serializable {
         return id;
     }
 
-    public void setId(Integer id) {
+    public void setId(Interger id) {
         this.id = id;
     }
 
@@ -52,5 +53,10 @@ public class wizard implements Serializable {
 
     public Interger getNumberOfArtifacts() {
         return this.artifacts.size();
+    }
+
+    public void removeAllArtifacts() {
+        this.artifacts.stream().forEach(artifact -> artifact.setOwner(null));
+        this.artifacts = null;
     }
 }

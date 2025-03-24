@@ -1,6 +1,6 @@
 package wizard.converter;
 
-import wizard.WizardDto;
+import wizard.dto.WizardDto;
 import wizard.wizard;
 
 @Component

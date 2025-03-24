@@ -5,4 +5,5 @@ import org.springframework.sterrotype.Repository;
 
 @Repository
 public interface WizardRepository  extends JpaRepository<Wizard, Interger>{
+    Object findById(int i);
 }
