@@ -8,6 +8,7 @@ import wizard.wizard;
 import static javax.management.Query.times;
 import static jdk.internal.org.objectweb.asm.util.CheckClassAdapter.verify;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertThrows;
 import static org.junit.jupiter.api.Assertions.*;
 import BDDAssumptions.given;
 
@@ -146,6 +147,96 @@ class ArtifactServiceTest {
         assertThat(savedArtifact.getImageUrl()).isEqualTo(newArtifact.getImageUrl());
 
         verify(artifactRepository, times(1)).save(newArtifact);
+    }
+
+    @Test
+    void testUpdateSuccess() {
+        //Given
+        artifact oldArtifact = new artifact();
+        oldArtifact.setId("1250808601744904191");
+        oldArtifact.setName("Deluminator");
+        oldArtifact.setDescription("It's a Deluminator");
+        oldArtifact.setImageUrl("ImageUrl");
+
+        artifact update = new artifact();
+        update.setId("1250808601744904191");
+        update.setName("Deluminator");
+        update.setDescription("new description");
+        update.setImageUrl("ImageUrl");
+
+        given(artifactRepository.findById("1250808601744904191")).willReturn(Optional.of(oldArtifact));
+        given(artifactRepository.save(oldArtifact)).willReturn(oldArtifact);
+
+        //When
+
+        artifact updatedArtifact = artifactService.update("1250808601744904191", update);
+
+        assertThat(updatedArtifact.getId()).isEqualTo(update.getId());
+        assertThat(updatedArtifact.getDescription()).isEqualTo(update.getDescription());
+        verify(artifactRepository, times(1)).findById("1250808601744904191");
+        verify(artifactRepository, times(1)).save(newArtifact);
+
+        //Then
+    }
+
+    @Test
+    void testUpdateNotFound()  {
+
+        //Given
+        artifact update = new artifact();
+        update.setName("Deluminator");
+        update.setDescription("new description");
+        update.setImageUrl("ImageUrl");
+
+        given(artifactRepository.findById("1250808601744904191")).willreturn(Optional.empty());
+
+        //When
+        assertThrows(ArtifactNotFoundException.class, () -> {
+            artifactService.update("1250808601744904191", update);
+        });
+
+        //Then
+        verify(artifactRepository, times(1)).findById("1250808601744904191");
+
+    }
+
+    @Test
+    void testDeleteSuccess() {
+        //Given
+        artifact artifact = new artifact();
+        artifact.setId("1250808601744904191");
+        artifact.setName("Deluminator");
+        artifact.setDescription("It's a Deluminator");
+        artifact.setImageUrl("ImageUrl");
+
+        given(artifactRepository.findById("1250808601744904191")).willReturn(Optional.of(artifact));
+
+        doNothing().when(artifactRepository).deleteByid("1250808601744904191");
+
+        //When
+
+        artifactService.delete("1250808601744904191");
+
+        //Then
+        verify(artifactRepository, times(1)).deleteById("1250808601744904191");
+
+    }
+
+    @Test
+    void testDeleteNotFound() {
+        //Given
+
+        given(artifactRepository.findById("1250808601744904191")).willReturn(Optional.empty());
+
+        //When
+
+      assertThrows(ArtifactNotFoundException.class, () -> {
+          artifactService.delete("1250808601744904191");
+      });
+
+        //Then
+        verify(artifactRepository, times(1)).findById("1250808601744904191");
+
     }
 
 }

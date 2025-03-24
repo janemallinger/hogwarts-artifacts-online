@@ -8,6 +8,9 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.regex.Matcher;
 
+import static java.nio.file.Files.delete;
+import static javax.management.Query.eq;
+import static javax.swing.UIManager.put;
 import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.AfterEach;
 
@@ -151,8 +154,89 @@ class ArtifactControllerTest {
                 .andExpect(jsonPath("$.data.description").value(savedArtifact.getDescription()))
                 .andExpect(jsonPath("$.data.imageUrl").value(savedArtifact.getImageUrl()));
 
+    }
+
+    @Test
+    void testUpdateArtifactSuccess() throws Exception {
+        ArtifactDto artifactDto = new ArtifactDto("1250808601744904191",
+                "cloak",
+                "go invisible",
+                "ImageUrl",
+                null);
+        String json = this.objectMapper.writeValueAsString(artifactDto);
+
+        artifact updatedArtifact = new artifact();
+        updatedArtifact.setId("1250808601744904192");
+        updatedArtifact.setName("cloak");
+        updatedArtifact.setDescription("go invisible");
+        updatedArtifact.setImageUrl("ImageUrl");
+
+        given(this.artifactService.update(eq("1250808601744904192"), 9Mockito.any(artifact.class))).willReturn(savedArtifact);
+
+
+
+        //When and Then
+        this.mockMvc.perform(put("/api/v1/artifacts/1250808601744904192").contentType(PageAttributes.MediaType.APPLICATION_JSON).content(json).accept(PageAttributes.MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.flag").value(true))
+                .andExpect(jsonPath("$.code").value(StatusCode.SUCCESS))
+                .andExpect(jsonPath("$.message").value("update success"))
+                .andExpect(jsonPath("$.data.id").value("1250808601744904192"))
+                .andExpect(jsonPath("$.data.name").value(updatedArtifact.getName()))
+                .andExpect(jsonPath("$.data.description").value(updatedArtifact.getDescription()))
+                .andExpect(jsonPath("$.data.imageUrl").value(updatedArtifact.getImageUrl()));
+
+    }
+
+    @Test
+    void testUpdateArtifactErrorWithNonExistentId() throws Exception {
+        ArtifactDto artifactDto = new ArtifactDto("1250808601744904191",
+                "cloak",
+                "go invisible",
+                "ImageUrl",
+                null);
+        String json = this.objectMapper.writeValueAsString(artifactDto);
+
+
+        given(this.artifactService.update(eq("1250808601744904192"), Mockito.any(artifact.class))).willThrow(new ArtifactNotFoundException());
+
+
+
+        //When and Then
+        this.mockMvc.perform(put("/api/v1/artifacts/1250808601744904192").contentType(PageAttributes.MediaType.APPLICATION_JSON).content(json).accept(PageAttributes.MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.flag").value(false))
+                .andExpect(jsonPath("$.code").value(StatusCode.NOT_FOUND))
+                .andExpect(jsonPath("$.message").value("could not find artifact with Id 1250808601744904192"))
+                .andExpect(jsonPath("$.data").isEmpty());
 
 
     }
+
+    @Test
+    void testDeleteArtifactSuccess() throws Exception {
+        //Given
+        doNothing().when(this.artifactService.delete("1250808601744904192"));
+
+        //When and Then
+        this.mockMvc.perform(delete("/api/v1/artifacts/1250808601744904192").accept(PageAttributes.MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.flag").value(true))
+                .andExpect(jsonPath("$.code").value(StatusCode.SUCCESS))
+                .andExpect(jsonPath("$.message").value("delete success"))
+                .andExpect(jsonPath("$.data").isEmpty());
+    }
+
+    @Test
+    void testDeleteArtifactErrorWithNonExistentId() throws Exception {
+        //Given
+        doThrow(new ArtifactNotFoundException("1250808601744904191")).when(this.artifactService.delete("1250808601744904192"));
+
+        //When and Then
+        this.mockMvc.perform(delete("/api/v1/artifacts/1250808601744904191").accept(PageAttributes.MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.flag").value(false))
+                .andExpect(jsonPath("$.code").value(StatusCode.NOT_FOUND))
+                .andExpect(jsonPath("$.message").value("could not find artifact with Id 1250808601744904191"))
+                .andExpect(jsonPath("$.data").isEmpty());
+    }
+
+
 
 }
