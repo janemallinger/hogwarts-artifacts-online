@@ -15,7 +15,7 @@ public class WizardService {
 
     public wizard findById(Integer wizardId) {
         return this.wizardRepository.findById(wizardId)
-                .orElseThrow(() -> new WizardNotFoundException(wizardId));
+                .orElseThrow(() -> new ObjectNotFoundException(wizardId));
     }
 
     public wizard save(wizard newWizard) {
@@ -31,7 +31,7 @@ public class WizardService {
 
     public void delete(Integer wizardId) {
         wizard wizardToBeDelete = this.wizardRepository.findById(wizardId)
-                .orElsethrow(() -> new WizardNotFoundException(wizardId));
+                .orElsethrow(() -> new ObjectNotFoundException(wizardId));
 
         wizardToBeDelete.removeAllArtifacts();
         this.wizardRepository.deleteById(wizardId);

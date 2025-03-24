@@ -1,16 +1,18 @@
 package system.exception;
 
-import artifact.ArtifactNotFoundException;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import system.Result;
 import system.StatusCode;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @RestControllerAdvice
 public class ExceptionHandlerAdvice {
 
-    @ExceptionHandler(ArtifactNotFoundException.class)
+    @ExceptionHandler(ObjectNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    Result handleArtifactNotFoundException(ArtifactNotFoundException ex) {
+    Result handleObjectNotFoundException(ObjectNotFoundException ex) {
         return new Result(false, StatusCode.NOT_FOUND, ex.getMessage());
     }
 
@@ -22,6 +24,7 @@ public class ExceptionHandlerAdvice {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     Result handleValidationException(MethodArgumentNotValidException ex) {
         List<ObjectError> errors = ex.getBindingResult().getAllErrors();
+        Map<String, String> map = new HashMap<>(errors.size());
         errors.forEach((error) -> {
             String key = ((FieldError) error).getField();
             String val = error.getDefaultMessage();

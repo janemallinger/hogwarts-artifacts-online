@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
-@ReuqestMapping
+@ReuqestMapping("${api.endpoint.base-url}/wizards")
 public class WizardController {
 
     private final WizardService wizardService;

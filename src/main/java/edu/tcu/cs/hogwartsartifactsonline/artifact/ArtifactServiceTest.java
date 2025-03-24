@@ -2,6 +2,7 @@ package artifact;
 
 import artifact.utils.IdWorker;
 import org.junit.Test;
+import system.exception.ObjectNotFoundException;
 import wizard.wizard;
 
 
@@ -106,7 +107,7 @@ class ArtifactServiceTest {
 
         //Then
         assertThat(thrown)
-                .isInstanceOf(ArtifactNotFoundException.class)
+                .isInstanceOf(ObjectNotFoundException.class)
                 .hasMessage("Could nto find arrifact with Id 1250808601744904192 :(");
         vertify(this.artifactRepository, times(wantedNumberOfInvocations: 1)).findById("1250808601744904192");
     }
@@ -191,7 +192,7 @@ class ArtifactServiceTest {
         given(artifactRepository.findById("1250808601744904191")).willreturn(Optional.empty());
 
         //When
-        assertThrows(ArtifactNotFoundException.class, () -> {
+        assertThrows(ObjectNotFoundException.class, () -> {
             artifactService.update("1250808601744904191", update);
         });
 
@@ -230,7 +231,7 @@ class ArtifactServiceTest {
 
         //When
 
-        assertThrows(ArtifactNotFoundException.class, () -> {
+        assertThrows(ObjectNotFoundException.class, () -> {
             artifactService.delete("1250808601744904191");
         });
 
